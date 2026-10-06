@@ -1,0 +1,20 @@
+{
+  "name": "looksmaxx-io",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "test:network": "node --test tests/network.test.js tests/network-protocol.test.js tests/server-lifecycle.test.js",
+    "audit:network": "node scripts/audit-network.mjs",
+    "audit:arena": "node scripts/audit-arena.mjs",
+    "check:release": "npm test && npm audit --omit=dev"
+  },
+  "dependencies": {
+    "ws": "^8.22.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

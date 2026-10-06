@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+artifacts/*
+!artifacts/RELEASE.md
+!artifacts/network-audit.json
+!artifacts/arena-audit.json
+!artifacts/avatar-review.html
+!artifacts/avatar-review.css
+!artifacts/avatar-review.js
+!artifacts/device-check.md
+!artifacts/deployment.md

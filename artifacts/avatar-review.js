@@ -1,0 +1,4 @@
+
+import {TIERS} from '../src/arena.js';
+const atlas=new Image();atlas.src='../public/assets/avatar-evolution-v2.png';await atlas.decode();
+TIERS.forEach(([mass,name,color],i)=>{const card=document.createElement('article'),canvas=document.createElement('canvas');canvas.width=320;canvas.height=320;const c=canvas.getContext('2d');c.beginPath();c.arc(160,160,150,0,Math.PI*2);c.clip();const w=atlas.naturalWidth/5,h=atlas.naturalHeight/4,s=Math.min(w,h)*.84;c.drawImage(atlas,(i%5)*w+(w-s)/2,Math.floor(i/5)*h+(h-s)/2,s,s,10,10,300,300);const title=document.createElement('h2');title.textContent=`${i+1}. ${name.toUpperCase()}`;title.style.color=color;const description=document.createElement('p');description.textContent=`Масса: ${mass.toLocaleString('ru')}`;card.append(canvas,title,description);document.querySelector('main').append(card);});

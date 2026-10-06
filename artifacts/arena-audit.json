@@ -1,0 +1,43 @@
+{
+  "seed": 42,
+  "simulatedMinutes": 30,
+  "elapsedSeconds": 30,
+  "samples": [
+    {
+      "minutes": 5,
+      "topMass": 82034,
+      "newcomerClearance": 633,
+      "bots": 24
+    },
+    {
+      "minutes": 10,
+      "topMass": 117583,
+      "newcomerClearance": 855,
+      "bots": 24
+    },
+    {
+      "minutes": 15,
+      "topMass": 324933,
+      "newcomerClearance": 363,
+      "bots": 24
+    },
+    {
+      "minutes": 20,
+      "topMass": 492006,
+      "newcomerClearance": 698,
+      "bots": 24
+    },
+    {
+      "minutes": 25,
+      "topMass": 649070,
+      "newcomerClearance": 616,
+      "bots": 24
+    },
+    {
+      "minutes": 30,
+      "topMass": 818820,
+      "newcomerClearance": 508,
+      "bots": 24
+    }
+  ]
+}

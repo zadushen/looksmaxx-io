@@ -1,0 +1,25 @@
+{
+  "scope": "Local real WebSockets; not a public internet or physical phone test",
+  "scenarios": [
+    {
+      "players": 64,
+      "durationSeconds": 120,
+      "minSnapshots": 1172,
+      "p95SnapshotGapMs": 105.1,
+      "maxSnapshotGapMs": 164.5,
+      "wireMBPerSecond": 2.52,
+      "outboundMBPerSecond": 12.15
+    }
+  ],
+  "simulatedLatency": {
+    "oneWayDelayMs": 150,
+    "inputVisibleMs": 361,
+    "passed": true
+  },
+  "httpExposure": {
+    "/server.js": 404,
+    "/package.json": 404,
+    "/.env.example": 404,
+    "/artifacts/arena-audit.json": 404
+  }
+}

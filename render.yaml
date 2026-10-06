@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: looksmaxx-io
+    runtime: node
+    plan: free
+    region: frankfurt
+    autoDeployTrigger: checksPass
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    # Arena and rooms are held in process memory; keep one shared game server.
+    numInstances: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: '22'
+      # Provisional limits until the actual service passes external load checks.
+      - key: PUBLIC_LIMIT
+        value: '8'
+      - key: CONNECTION_LIMIT
+        value: '24'
+      - key: MAX_ROOMS
+        value: '4'
+      - key: LOG_METRICS
+        value: 'true'
