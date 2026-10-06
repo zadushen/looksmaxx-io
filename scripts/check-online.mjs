@@ -8,6 +8,7 @@ assert.equal(origin.protocol,'https:','Provide the deployed HTTPS origin');
 origin.pathname='/';origin.search='';origin.hash='';
 const wsOrigin=new URL(origin);wsOrigin.protocol='wss:';
 const report={url:origin.href,checkedAt:new Date().toISOString(),checks:[],load:[],limitations:['Physical phone, two independent devices, human balance and provider restart require separate verification.']};
+const loadPublic=process.env.LOAD_ROOM==='public';
 const sockets=new Set();
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function client(){
@@ -43,7 +44,7 @@ try{
   assert.ok(Number.isInteger(count)&&count>=1&&count<=12,'Private load stage must be 1..12');
   const peers=[],metrics=[];let code;
   for(let i=0;i<count;i++){
-   const peer=await client();peers.push(peer);peer.send(i===0?{type:'create-room'}:{type:'join-room',code});const joined=await peer.receive(m=>m.type==='room'||m.type==='room-error');assert.equal(joined.type,'room');code=joined.code;
+   const peer=await client();peers.push(peer);peer.send(loadPublic?{type:'join-room',code:''}:i===0?{type:'create-room'}:{type:'join-room',code});const joined=await peer.receive(m=>m.type==='room'||m.type==='room-error');assert.equal(joined.type,'room');code=joined.code;
    const metric={packets:0,gaps:[],last:0,startBytes:peer.socket._socket.bytesRead};metrics.push(metric);
    peer.socket.on('message',raw=>{if(JSON.parse(raw).type!=='world')return;const now=performance.now();if(metric.last)metric.gaps.push(now-metric.last);metric.last=now;metric.packets++;});
    metric.timer=setInterval(()=>peer.socket.readyState===1&&peer.send({type:'input',name:`Audit ${i}`,x:Math.sin(performance.now()/1000+i),y:Math.cos(performance.now()/1000+i)}),50);
@@ -51,13 +52,13 @@ try{
   try{
    await sleep(duration*1000);
    const gaps=metrics.flatMap(m=>m.gaps).sort((a,b)=>a-b);assert.ok(gaps.length>0);
-   const result={players:count,seconds:duration,minSnapshots:Math.min(...metrics.map(m=>m.packets)),p95GapMs:Math.round(gaps[Math.floor(gaps.length*.95)]),maxGapMs:Math.round(gaps.at(-1)),wireKBPerSecond:Math.round(metrics.reduce((sum,m,i)=>sum+peers[i].socket._socket.bytesRead-m.startBytes,0)/duration/1000),connectionsOpen:peers.every(p=>p.socket.readyState===1)};
+   const result={arena:loadPublic?'public':'private',players:count,seconds:duration,minSnapshots:Math.min(...metrics.map(m=>m.packets)),p95GapMs:Math.round(gaps[Math.floor(gaps.length*.95)]),maxGapMs:Math.round(gaps.at(-1)),wireKBPerSecond:Math.round(metrics.reduce((sum,m,i)=>sum+peers[i].socket._socket.bytesRead-m.startBytes,0)/duration/1000),connectionsOpen:peers.every(p=>p.socket.readyState===1)};
    result.passed=result.connectionsOpen&&result.minSnapshots>=duration*7&&result.p95GapMs<200;report.load.push(result);console.log(JSON.stringify(result));if(!result.passed)break;
   }finally{metrics.forEach(m=>clearInterval(m.timer));peers.forEach(p=>p.socket.terminate());await sleep(500);}
  }
  const pub=await client();pub.send({type:'join-room',code:''});const publicRoom=await pub.receive(m=>m.type==='room');await pub.receive(m=>m.type==='world'&&m.players.some(p=>p.id===pub.id));report.checks.push({test:'Public arena',passed:true,configuredLimit:publicRoom.limit});
- report.passed=report.load.length>0&&report.load.every(stage=>stage.passed);
+ report.passed=report.load.length>0&&report.load.every(stage=>stage.passed);if(!report.passed)process.exitCode=1;
 } catch(error){report.passed=false;report.error=error.message;process.exitCode=1;}
 finally{
- for(const socket of sockets)socket.terminate();await mkdir(new URL('../artifacts/',import.meta.url),{recursive:true});await writeFile(new URL('../artifacts/online-audit.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+ for(const socket of sockets)socket.terminate();await mkdir(new URL('../artifacts/',import.meta.url),{recursive:true});await writeFile(new URL(loadPublic?'../artifacts/online-public-audit.json':'../artifacts/online-audit.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 }
