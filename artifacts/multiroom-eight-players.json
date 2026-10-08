@@ -1,0 +1,74 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:33:50.980Z",
+  "seconds": 60,
+  "groups": [
+    {
+      "kind": "public",
+      "count": 4
+    },
+    {
+      "kind": "private",
+      "count": 4
+    }
+  ],
+  "passed": true,
+  "clients": [
+    {
+      "packets": 555,
+      "p95GapMs": 187,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 48
+    },
+    {
+      "packets": 556,
+      "p95GapMs": 189,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 48
+    },
+    {
+      "packets": 555,
+      "p95GapMs": 185,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 48
+    },
+    {
+      "packets": 556,
+      "p95GapMs": 190,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 48
+    },
+    {
+      "packets": 556,
+      "p95GapMs": 186,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 556,
+      "p95GapMs": 182,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 555,
+      "p95GapMs": 193,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 556,
+      "p95GapMs": 198,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 33
+    }
+  ]
+}

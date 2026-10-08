@@ -1,0 +1,106 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:31:30.060Z",
+  "seconds": 60,
+  "groups": [
+    {
+      "kind": "public",
+      "count": 4
+    },
+    {
+      "kind": "private",
+      "count": 4
+    },
+    {
+      "kind": "private",
+      "count": 4
+    }
+  ],
+  "passed": false,
+  "clients": [
+    {
+      "packets": 408,
+      "p95GapMs": 279,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 225,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 219,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 224,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 33
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 243,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 25
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 221,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 25
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 233,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 25
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 226,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 25
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 225,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 26
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 221,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 26
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 219,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 26
+    },
+    {
+      "packets": 407,
+      "p95GapMs": 216,
+      "simulationRate": 0.68,
+      "open": true,
+      "wireKBPerSecond": 26
+    }
+  ]
+}

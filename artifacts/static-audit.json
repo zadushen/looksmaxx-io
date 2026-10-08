@@ -1,0 +1,68 @@
+{
+  "url": "https://looksmaxx-io.onrender.com",
+  "checkedAt": "2026-10-08T12:58:47.248Z",
+  "commit": "eedbfcb",
+  "files": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "matches": true,
+      "sha256": "e348dba8e1bbfd3a9ba182ba55e7620b0bbceaa8b9282f11abb864fb7a8358f6"
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "matches": true,
+      "sha256": "c6a8d77d596ccca3892aadcb3bef7e57cd2c46224c6b858d9e0394011a8c2734"
+    },
+    {
+      "path": "src/main.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "8e9f792fc8fb184e362f37bd22de97aae0b4f9e33540bbb2d58b727d6e980f9b"
+    },
+    {
+      "path": "src/ui.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "e5a0cd85eb506d244583340124d3811ec6c3757828c1d57040e3e9245029c0b9"
+    },
+    {
+      "path": "src/game.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "7171df1efe197a2286b8bb8867a52a85394863731a02a5dbca862633b4f7ffac"
+    },
+    {
+      "path": "src/network.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "6bd096a5d9c3bd9090f19832cb0ee782f9abc672d43807a0054dd75f23859e2c"
+    },
+    {
+      "path": "src/arena.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "f5a870f186aa0b83553513d1573aadc86a79c8ddfc85ac76e8d67a281c9e62f6"
+    }
+  ],
+  "privateFiles": [
+    {
+      "path": "server.js",
+      "status": 404
+    },
+    {
+      "path": "server-config.js",
+      "status": 404
+    },
+    {
+      "path": ".env.example",
+      "status": 404
+    },
+    {
+      "path": "package.json",
+      "status": 404
+    }
+  ],
+  "passed": true
+}

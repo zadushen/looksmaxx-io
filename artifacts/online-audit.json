@@ -1,0 +1,117 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:24:05.668Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/healthz",
+      "status": 200
+    },
+    {
+      "path": "/styles.css",
+      "status": 200
+    },
+    {
+      "path": "/src/main.js",
+      "status": 200
+    },
+    {
+      "path": "/src/game.js",
+      "status": 200
+    },
+    {
+      "path": "/src/network.js",
+      "status": 200
+    },
+    {
+      "path": "public/assets/avatar-evolution-v2.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/hammer-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/foidka-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/makeupcelka-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/stacey-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "test": "Private room and authoritative movement over WSS",
+      "passed": true
+    },
+    {
+      "test": "Abrupt disconnect and fresh reconnect into existing room",
+      "passed": true
+    },
+    {
+      "test": "Public arena",
+      "passed": true,
+      "configuredLimit": 8
+    }
+  ],
+  "load": [
+    {
+      "arena": "private",
+      "players": 1,
+      "seconds": 30,
+      "minSnapshots": 293,
+      "p95GapMs": 116,
+      "maxGapMs": 200,
+      "wireKBPerSecond": 30,
+      "simulationRate": 0.97,
+      "connectionsOpen": true,
+      "passed": true
+    },
+    {
+      "arena": "private",
+      "players": 2,
+      "seconds": 30,
+      "minSnapshots": 291,
+      "p95GapMs": 124,
+      "maxGapMs": 291,
+      "wireKBPerSecond": 66,
+      "simulationRate": 0.96,
+      "connectionsOpen": true,
+      "passed": true
+    },
+    {
+      "arena": "private",
+      "players": 4,
+      "seconds": 30,
+      "minSnapshots": 292,
+      "p95GapMs": 131,
+      "maxGapMs": 276,
+      "wireKBPerSecond": 151,
+      "simulationRate": 0.97,
+      "connectionsOpen": true,
+      "passed": true
+    },
+    {
+      "arena": "private",
+      "players": 8,
+      "seconds": 30,
+      "minSnapshots": 295,
+      "p95GapMs": 127,
+      "maxGapMs": 349,
+      "wireKBPerSecond": 387,
+      "simulationRate": 0.98,
+      "connectionsOpen": true,
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Physical phone, two independent devices, human balance and provider restart require separate verification."
+  ],
+  "passed": true
+}

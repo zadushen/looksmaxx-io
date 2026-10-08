@@ -1,0 +1,22 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:29:49.197Z",
+  "transport": "WSS control ping/pong from this computer",
+  "samplesMs": [
+    51,
+    53,
+    57,
+    74,
+    65,
+    54,
+    52,
+    54,
+    60,
+    65,
+    80,
+    64
+  ],
+  "medianMs": 60,
+  "maxMs": 80,
+  "passed": true
+}

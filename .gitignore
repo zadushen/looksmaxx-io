@@ -13,3 +13,13 @@ artifacts/*
 !artifacts/avatar-review.js
 !artifacts/device-check.md
 !artifacts/deployment.md
+!artifacts/online-audit.json
+!artifacts/online-public-audit.json
+!artifacts/multiroom-audit.json
+!artifacts/multiroom-three-arenas.json
+!artifacts/multiroom-eight-players.json
+!artifacts/online-public-eight-players.json
+!artifacts/latency-audit.json
+!artifacts/static-audit.json
+!artifacts/restart-audit.json
+!artifacts/capacity-audit.json

@@ -1,0 +1,81 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:44:35.858Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/healthz",
+      "status": 200
+    },
+    {
+      "path": "/styles.css",
+      "status": 200
+    },
+    {
+      "path": "/src/main.js",
+      "status": 200
+    },
+    {
+      "path": "/src/game.js",
+      "status": 200
+    },
+    {
+      "path": "/src/network.js",
+      "status": 200
+    },
+    {
+      "path": "public/assets/avatar-evolution-v2.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/hammer-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/foidka-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/makeupcelka-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "path": "public/assets/stacey-avatar.png",
+      "verified": "Matches local PNG"
+    },
+    {
+      "test": "Private room and authoritative movement over WSS",
+      "passed": true
+    },
+    {
+      "test": "Abrupt disconnect and fresh reconnect into existing room",
+      "passed": true
+    },
+    {
+      "test": "Public arena",
+      "passed": true,
+      "configuredLimit": 6
+    }
+  ],
+  "load": [
+    {
+      "arena": "public",
+      "players": 6,
+      "seconds": 120,
+      "minSnapshots": 1151,
+      "p95GapMs": 144,
+      "maxGapMs": 542,
+      "wireKBPerSecond": 265,
+      "simulationRate": 0.96,
+      "connectionsOpen": true,
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Physical phone, two independent devices and human balance require separate verification; restart is recorded in restart-audit.json."
+  ],
+  "passed": true
+}

@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+import WebSocket from 'ws';
+import {writeFile} from 'node:fs/promises';
+const origin=new URL(process.argv[2]);assert.equal(origin.protocol,'https:');origin.protocol='wss:';
+const peers=[],report={checkedAt:new Date().toISOString(),test:'Six joined clients and excess connection notice',passed:false};
+async function joined(){return new Promise((resolve,reject)=>{const socket=new WebSocket(origin,{handshakeTimeout:20000});peers.push(socket);const timer=setTimeout(()=>reject(Error('Join timed out')),20000);socket.on('error',reject);socket.on('open',()=>socket.send(JSON.stringify({type:'join-room',code:''})));socket.on('message',raw=>{const m=JSON.parse(raw);if(m.type==='room'){clearTimeout(timer);resolve(socket);}});});}
+try{for(let i=0;i<6;i++)await joined();report.joined=6;const socket=new WebSocket(origin,{handshakeTimeout:20000});peers.push(socket);const messages=[];socket.on('error',()=>{});socket.on('message',raw=>messages.push(JSON.parse(raw)));await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Capacity close timed out')),40000);socket.on('close',(code)=>{clearTimeout(timer);report.closeCode=code;resolve();});});report.noticeReceived=messages.some(m=>m.type==='server-full');report.welcomeReceived=messages.some(m=>m.type==='welcome');report.passed=report.noticeReceived&&!report.welcomeReceived;}
+catch(error){report.error=error.message;}finally{peers.forEach(s=>s.terminate());await writeFile(new URL('../artifacts/capacity-audit.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;}

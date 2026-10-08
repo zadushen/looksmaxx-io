@@ -1,0 +1,60 @@
+{
+  "url": "https://looksmaxx-io.onrender.com/",
+  "checkedAt": "2026-10-08T12:47:17.770Z",
+  "seconds": 120,
+  "groups": [
+    {
+      "kind": "public",
+      "count": 3
+    },
+    {
+      "kind": "private",
+      "count": 3
+    }
+  ],
+  "passed": true,
+  "clients": [
+    {
+      "packets": 1111,
+      "p95GapMs": 187,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 44
+    },
+    {
+      "packets": 1111,
+      "p95GapMs": 188,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 44
+    },
+    {
+      "packets": 1111,
+      "p95GapMs": 187,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 44
+    },
+    {
+      "packets": 1111,
+      "p95GapMs": 189,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 34
+    },
+    {
+      "packets": 1111,
+      "p95GapMs": 186,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 34
+    },
+    {
+      "packets": 1111,
+      "p95GapMs": 191,
+      "simulationRate": 0.92,
+      "open": true,
+      "wireKBPerSecond": 34
+    }
+  ]
+}

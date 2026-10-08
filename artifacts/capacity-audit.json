@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-10-08T12:55:59.184Z",
+  "test": "Six joined clients and excess connection notice",
+  "passed": true,
+  "joined": 6,
+  "closeCode": 1006,
+  "noticeReceived": true,
+  "welcomeReceived": false
+}
