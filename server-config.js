@@ -7,6 +7,7 @@ export function serverLimits(env = process.env) {
   };
   return {
     publicPlayers: read('PUBLIC_LIMIT', 64, 64),
+    privatePlayers: read('ROOM_LIMIT', 12, 12),
     connections: read('CONNECTION_LIMIT', 128, 128),
     rooms: read('MAX_ROOMS', 32, 32)
   };

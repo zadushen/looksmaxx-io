@@ -7,7 +7,7 @@ const origin=new URL(process.argv[2]||'');
 assert.equal(origin.protocol,'https:','Provide the deployed HTTPS origin');
 origin.pathname='/';origin.search='';origin.hash='';
 const wsOrigin=new URL(origin);wsOrigin.protocol='wss:';
-const report={url:origin.href,checkedAt:new Date().toISOString(),checks:[],load:[],limitations:['Physical phone, two independent devices, human balance and provider restart require separate verification.']};
+const report={url:origin.href,checkedAt:new Date().toISOString(),checks:[],load:[],limitations:['Physical phone, two independent devices and human balance require separate verification; restart is recorded in restart-audit.json.']};
 const loadPublic=process.env.LOAD_ROOM==='public';
 const sockets=new Set();
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -38,7 +38,7 @@ try{
  report.checks.push({test:'Abrupt disconnect and fresh reconnect into existing room',passed:true});
  b.socket.terminate();replacement.socket.terminate();await sleep(500);
  // Progressively load a disposable private room; stop at the first failed stage.
- const stages=(process.env.LOAD_PLAYERS||'1,2,4,8').split(',').map(Number);
+ const stages=(process.env.LOAD_PLAYERS||'1,2,4,6').split(',').map(Number);
  const duration=Math.max(5,Math.min(120,Number(process.env.LOAD_SECONDS)||20));
  for(const count of stages){
   assert.ok(Number.isInteger(count)&&count>=1&&count<=12,'Private load stage must be 1..12');

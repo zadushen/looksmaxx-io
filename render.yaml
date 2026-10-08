@@ -15,12 +15,14 @@ services:
         value: production
       - key: NODE_VERSION
         value: '22'
-      # Provisional limits until the actual service passes external load checks.
+      # Free-tier limits with headroom below the tested eight-player workload.
       - key: PUBLIC_LIMIT
-        value: '8'
+        value: '6'
+      - key: ROOM_LIMIT
+        value: '6'
       - key: CONNECTION_LIMIT
-        value: '24'
+        value: '6'
       - key: MAX_ROOMS
-        value: '4'
+        value: '2'
       - key: LOG_METRICS
         value: 'true'

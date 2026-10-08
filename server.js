@@ -22,7 +22,7 @@ const http=createServer((req,res)=>{
 });
 const wss=new WebSocketServer({server:http,maxPayload:4096,perMessageDeflate:{threshold:1024,serverNoContextTakeover:true,clientNoContextTakeover:true,concurrencyLimit:4,zlibDeflateOptions:{level:3}}});
 const limits=serverLimits();
-const ROOM_LIMIT=12, PUBLIC_LIMIT=limits.publicPlayers, CONNECTION_LIMIT=limits.connections, MAX_ROOMS=limits.rooms, PUBLIC_ROOM='public';
+const ROOM_LIMIT=limits.privatePlayers, PUBLIC_LIMIT=limits.publicPlayers, CONNECTION_LIMIT=limits.connections, MAX_ROOMS=limits.rooms, PUBLIC_ROOM='public';
 let nextMapIndex=0;
 const createArena=()=>new Arena(Math.random,nextMapIndex++);
 const rooms=new Map([[PUBLIC_ROOM,{arena:createArena(),sockets:new Set(),public:true}]]);
@@ -31,8 +31,8 @@ const send=(socket,message)=>socket.readyState===1&&socket.send(JSON.stringify(m
 const roomCode=()=>{let code;do{code=Array.from({length:6},()=> 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');}while(rooms.has(code));return code;};
 function announceRoom(socket,code){const room=rooms.get(code);send(socket,{type:'room',code:room.public?'':code,isPublic:room.public,players:room.arena.players.size,limit:room.public?PUBLIC_LIMIT:ROOM_LIMIT});}
 function leaveRoom(socket){const code=socket.roomCode;if(!code)return;const room=rooms.get(code);if(!room)return;room.sockets.delete(socket);room.arena.removePlayer(socket.playerId);socket.roomCode=null;if(!room.public&&!room.sockets.size)rooms.delete(code);}
-function joinRoom(socket,code){const room=rooms.get(code);if(!room){send(socket,{type:'room-error',message:'Комната с таким кодом не найдена.'});return false;}if(room.arena.players.size>=(room.public?PUBLIC_LIMIT:ROOM_LIMIT)){send(socket,{type:'room-error',message:room.public?'Общий мир заполнен. Попробуй позже.':'В комнате уже 12 игроков.'});return false;}leaveRoom(socket);room.sockets.add(socket);socket.roomCode=code;socket.needsFull=true;room.arena.addPlayer(socket.playerId);announceRoom(socket,code);return true;}
-function createRoom(socket){if(rooms.size>=MAX_ROOMS){send(socket,{type:'room-error',message:'Сервер занят. Войди в общий мир или существующую комнату.'});return;}const code=roomCode();rooms.set(code,{arena:createArena(),sockets:new Set(),public:false});joinRoom(socket,code);}
+function joinRoom(socket,code){const room=rooms.get(code);if(!room){send(socket,{type:'room-error',message:'Комната с таким кодом не найдена.'});return false;}if(room.arena.players.size>=(room.public?PUBLIC_LIMIT:ROOM_LIMIT)){send(socket,{type:'room-error',message:room.public?'Общий мир заполнен. Попробуй позже.':`В комнате уже ${ROOM_LIMIT} игроков.`});return false;}leaveRoom(socket);room.sockets.add(socket);socket.roomCode=code;socket.needsFull=true;room.arena.addPlayer(socket.playerId);announceRoom(socket,code);return true;}
+function createRoom(socket){const current=rooms.get(socket.roomCode);if(rooms.size>=MAX_ROOMS&&current&&!current.public&&current.sockets.size===1)leaveRoom(socket);if(rooms.size>=MAX_ROOMS){send(socket,{type:'room-error',message:'Сервер занят. Войди в общий мир или существующую комнату.'});return;}const code=roomCode();rooms.set(code,{arena:createArena(),sockets:new Set(),public:false});joinRoom(socket,code);}
 function playerArena(socket){return rooms.get(socket.roomCode)?.arena;}
 function publish(){
   for(const room of rooms.values()){
@@ -51,9 +51,11 @@ function publish(){
   }
 }
 wss.on('connection',socket=>{
+  socket.on('error',()=>{});
   if(wss.clients.size>CONNECTION_LIMIT){socket.close(1013,'Server full');return;}
   socket.playerId=`p${nextId++}`;socket.roomCode=null;socket.alive=true;socket.windowStarted=Date.now();socket.messages=0;socket.roomActions=0;
   send(socket,{type:'welcome',id:socket.playerId});
+  const joinTimeout=setTimeout(()=>{if(!socket.roomCode)socket.close(1008,'Join a room to play');},10000);joinTimeout.unref();socket.on('close',()=>clearTimeout(joinTimeout));
   socket.on('pong',()=>socket.alive=true);
   socket.on('message',raw=>{
     const now=Date.now();
@@ -73,7 +75,7 @@ wss.on('connection',socket=>{
       }
     }catch{}
   });
-  socket.on('error',()=>{});socket.on('close',()=>leaveRoom(socket));
+  socket.on('close',()=>leaveRoom(socket));
 });
 let ticks=0;
 const simulation=setInterval(()=>{

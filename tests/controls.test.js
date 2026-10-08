@@ -57,3 +57,11 @@ test('lost connections show the menu and allow a fresh connection; Enter starts 
  socket.emit('close');assert.equal(h.elements.get('#start-screen').hidden,false);assert.equal(h.elements.get('#room-bar').hidden,true);
  h.elements.get('#play').dispatch('click');assert.equal(h.sockets.length,2);
 });
+
+test('private-room counters follow player snapshots and a full server gives a clear message',async()=>{
+ const {Arena}=await import('../src/arena.js');const h=browserHarness(),socket=h.start();
+ socket.emit('message',{type:'room',isPublic:false,code:'ABC123',players:1,limit:8});
+ const arena=new Arena();arena.addPlayer('me');arena.addPlayer('guest');socket.emit('message',arena.snapshot());assert.match(h.elements.get('#room-label').textContent,/2\/8/);
+ arena.removePlayer('guest');socket.emit('message',arena.snapshot());assert.match(h.elements.get('#room-label').textContent,/1\/8/);
+ socket.emit('close',{code:1013});assert.match(h.elements.get('#room-status').textContent,/заполнен/);
+});
