@@ -67,6 +67,7 @@ wss.on('connection',socket=>{
     if(++socket.messages>120){socket.close(1008,'Too many messages');return;}
     try{
       const data=JSON.parse(raw);if(!data||typeof data!=='object'||Array.isArray(data))return;
+      if(data.type==='ping'&&Number.isFinite(data.sentAt)){send(socket,{type:'pong',sentAt:data.sentAt});return;}
       if(data.type==='create-room'||data.type==='join-room'){
         if(++socket.roomActions>4){socket.close(1008,'Too many room changes');return;}
         if(data.type==='create-room')createRoom(socket);

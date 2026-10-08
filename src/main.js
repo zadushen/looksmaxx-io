@@ -1,5 +1,7 @@
+import { Diagnostics } from './diagnostics.js';
 import { Game } from './game.js';
 import { UI } from './ui.js';
+const diagnostics = new URLSearchParams(location.search).get('debug')==='1' ? new Diagnostics() : null;
 const canvas = document.querySelector('#game');
 let game = new Game(); let ui = new UI(game, canvas); let last = performance.now();
 let audio, lastBoostTone = 0, socket, clientId, pendingRoom='public', activeRoom='public',activeRoomLimit=12;
@@ -8,13 +10,15 @@ const socketOrigin = location.protocol === 'file:' ? 'ws://localhost:3000' : `${
 const start = document.querySelector('#start-screen'), nickname = document.querySelector('#nickname'), roomInput = document.querySelector('#room-code-input'), roomStatus = document.querySelector('#room-status'), roomBar = document.querySelector('#room-bar'), roomLabel = document.querySelector('#room-label'), copyInvite = document.querySelector('#copy-invite');
 const tone = (frequency, duration = .08, volume = .035) => { if (!audio) return; const oscillator = audio.createOscillator(), gain = audio.createGain(); oscillator.frequency.value = frequency; gain.gain.setValueAtTime(volume, audio.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + duration); oscillator.connect(gain).connect(audio.destination); oscillator.start(); oscillator.stop(audio.currentTime + duration); };
 const setStatus=(message,error=false)=>{roomStatus.textContent=message;roomStatus.classList.toggle('error',error);};
-const showRoom=room=>{activeRoom=room.code||'public';activeRoomLimit=room.limit;roomBar.hidden=false;if(room.isPublic){roomLabel.textContent='Общий мир';copyInvite.hidden=true;}else{roomLabel.textContent=`Комната: ${room.code} · ${room.players}/${room.limit}`;copyInvite.hidden=false;}start.hidden=true;ui.over.hidden=true;canvas.focus();};
+const showRoom=room=>{diagnostics?.reset();game.resetSnapshotHistory();activeRoom=room.code||'public';activeRoomLimit=room.limit;roomBar.hidden=false;if(room.isPublic){roomLabel.textContent='Общий мир';copyInvite.hidden=true;}else{roomLabel.textContent=`Комната: ${room.code} · ${room.players}/${room.limit}`;copyInvite.hidden=false;}start.hidden=true;ui.over.hidden=true;canvas.focus();};
 const connect = () => {
   if (socket?.readyState === WebSocket.OPEN || socket?.readyState === WebSocket.CONNECTING) return;
   let serverFull=false;
   socket = new WebSocket(socketOrigin);
   socket.addEventListener('open',()=>socket.send(JSON.stringify(pendingRoom==='create'?{type:'create-room'}:{type:'join-room',code:pendingRoom==='public'?'':pendingRoom})));
-  socket.addEventListener('message', event => { const data = JSON.parse(event.data); if(data.type==='server-full'){serverFull=true;start.hidden=false;setStatus('Сервер заполнен. Попробуй войти чуть позже.',true);} if (data.type === 'welcome') clientId=data.id; if (data.type === 'room') showRoom(data); if(data.type==='room-error'){start.hidden=false;setStatus(data.message,true);} if (data.type === 'world' && clientId){game.applySnapshot(data, clientId);if(activeRoom!=='public'&&!roomBar.hidden)roomLabel.textContent=`Комната: ${activeRoom} · ${data.players.length}/${activeRoomLimit}`;} });
+  let pingTimer;if(diagnostics)pingTimer=setInterval(()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'ping',sentAt:performance.now()}));},2000);
+  socket.addEventListener('close',()=>clearInterval(pingTimer));
+  socket.addEventListener('message', event => { const data = JSON.parse(event.data); if(data.type==='server-full'){serverFull=true;start.hidden=false;setStatus('Сервер заполнен. Попробуй войти чуть позже.',true);} if(data.type==='pong'&&diagnostics)diagnostics.rtt=performance.now()-data.sentAt; if (data.type === 'welcome') clientId=data.id; if (data.type === 'room') showRoom(data); if(data.type==='room-error'){start.hidden=false;setStatus(data.message,true);} if (data.type === 'world' && clientId){diagnostics?.snapshot(performance.now());game.applySnapshot(data, clientId);if(activeRoom!=='public'&&!roomBar.hidden)roomLabel.textContent=`Комната: ${activeRoom} · ${data.players.length}/${activeRoomLimit}`;} });
   socket.addEventListener('close',event=>{clearInput();pendingRoom=activeRoom;start.hidden=false;roomBar.hidden=true;setStatus(serverFull||event?.code===1013?'Сервер заполнен. Попробуй войти чуть позже.':'Соединение потеряно. Нажми «Играть» или войди в комнату снова.',true);});
 };
 ui.resize(); addEventListener('resize', () => ui.resize());
@@ -31,7 +35,7 @@ addEventListener('keydown', e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target
 addEventListener('keyup', e => input.keys.delete(e.code));
 const clearInput=()=>{input.keys.clear();input.x=0;input.y=0;input.boostTouch=false;touchOrigin=null;};
 addEventListener('blur',clearInput);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInput();});
+document.addEventListener('visibilitychange',()=>{diagnostics?.reset();if(document.hidden)clearInput();});
 const begin = room => { audio ??= new AudioContext(); pendingRoom=room;setStatus(room==='create'?'Создаём комнату…':'Подключаемся…');connect();if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(room==='create'?{type:'create-room'}:{type:'join-room',code:room==='public'?'':room}));tone(330,.1,.05); };
 document.querySelector('#play').addEventListener('click', ()=>begin('public'));
 document.querySelector('#create-room').addEventListener('click', ()=>begin('create'));
@@ -45,5 +49,5 @@ const boostTouch=document.querySelector('#boost-touch');
 copyInvite.addEventListener('click',async()=>{const code=activeRoom;const invite=`${serverOrigin}/?room=${encodeURIComponent(code)}`;try{await navigator.clipboard.writeText(invite);copyInvite.textContent='Скопировано ✓';copyInvite.classList.add('copied');setTimeout(()=>{copyInvite.textContent='Копировать приглашение';copyInvite.classList.remove('copied');},1600);}catch{setStatus(`Код комнаты: ${code}`,false);}});
 const invitationCode=new URLSearchParams(location.search).get('room');if(invitationCode){roomInput.value=invitationCode.toUpperCase().slice(0,6);setStatus(`Приглашение в комнату ${roomInput.value}`);}
 function direction(){let x=0,y=0,k=input.keys;if(k.has('ArrowUp')||k.has('KeyW'))y--;if(k.has('ArrowDown')||k.has('KeyS'))y++;if(k.has('ArrowLeft')||k.has('KeyA'))x--;if(k.has('ArrowRight')||k.has('KeyD'))x++;return x||y?{x,y}:{x:input.x,y:input.y};}
-function frame(now) { const dt = Math.min((now-last)/1000,.05);last=now; const d=direction(),boost=input.keys.has('ShiftLeft')||input.keys.has('ShiftRight')||input.boostTouch; if (boost && game.player.mass > 24 && now - lastBoostTone > 180) { tone(180,.045,.018); lastBoostTone = now; } if (socket?.readyState === WebSocket.OPEN && !start.hidden){} else if(socket?.readyState===WebSocket.OPEN&&now-lastInputSent>=30&&socket.bufferedAmount<16384){socket.send(JSON.stringify({type:'input',name:nickname.value.trim()||'Ты',x:d.x,y:d.y,boost}));lastInputSent=now;} game.smooth(dt);ui.render();requestAnimationFrame(frame); }
+function frame(now) { const dt = Math.min((now-last)/1000,.05);last=now; const d=direction(),boost=input.keys.has('ShiftLeft')||input.keys.has('ShiftRight')||input.boostTouch; if (boost && game.player.mass > 24 && now - lastBoostTone > 180) { tone(180,.045,.018); lastBoostTone = now; } if (socket?.readyState === WebSocket.OPEN && !start.hidden){} else if(socket?.readyState===WebSocket.OPEN&&now-lastInputSent>=30&&socket.bufferedAmount<16384){socket.send(JSON.stringify({type:'input',name:nickname.value.trim()||'Ты',x:d.x,y:d.y,boost}));lastInputSent=now;} game.smooth(dt,socket?.readyState===WebSocket.OPEN&&start.hidden&&!document.hidden?{x:d.x,y:d.y,boost}:null);const renderStart=performance.now();ui.render();diagnostics?.frame(now,performance.now()-renderStart);requestAnimationFrame(frame); }
 requestAnimationFrame(frame);

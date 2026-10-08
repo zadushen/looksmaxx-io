@@ -135,3 +135,11 @@ test('fourteen million mass remains framed on desktop and a narrow phone',()=>{
   }finally{cleanup();}
  }
 });
+
+test('unchanged HUD does not rebuild DOM on every animation frame',()=>{
+ const {h,game,ui,cleanup}=setup();try{
+ const writes={mass:0,leaders:0};for(const key of Object.keys(writes)){const element=h.elements.get('#'+key);let value='';Object.defineProperty(element,'innerHTML',{get:()=>value,set:next=>{value=next;writes[key]++;}});}
+ game.leaderboard=[{id:'bot',name:'Bot',mass:50}];for(let i=0;i<120;i++)ui.updateHUD();assert.deepEqual(writes,{mass:1,leaders:1});
+ game.player.mass=15;game.leaderboard=[{id:'bot',name:'Bot',mass:51}];ui.updateHUD();assert.deepEqual(writes,{mass:2,leaders:2});
+ }finally{cleanup();}
+});

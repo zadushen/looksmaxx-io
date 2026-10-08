@@ -23,3 +23,5 @@ artifacts/*
 !artifacts/static-audit.json
 !artifacts/restart-audit.json
 !artifacts/capacity-audit.json
+!artifacts/GAME-QA.md
+!artifacts/smoothness-audit.json

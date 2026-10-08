@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-08T23:11:38.423Z",
+  "baselineRef": "eedbfcb",
+  "scenario": "Synthetic 60Hz frames, 10Hz world, 100ms one-way input and snapshot latency, ±16.7ms snapshot jitter",
+  "before": {
+    "firstVisibleMovementMs": 333,
+    "maxSnapshotPositionJump": 15.41
+  },
+  "after": {
+    "firstVisibleMovementMs": 17,
+    "maxSnapshotPositionJump": 0
+  },
+  "limitations": "Controlled model, not measured end-to-end input latency on a physical device."
+}
