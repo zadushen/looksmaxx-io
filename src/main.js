@@ -11,10 +11,11 @@ const setStatus=(message,error=false)=>{roomStatus.textContent=message;roomStatu
 const showRoom=room=>{activeRoom=room.code||'public';activeRoomLimit=room.limit;roomBar.hidden=false;if(room.isPublic){roomLabel.textContent='Общий мир';copyInvite.hidden=true;}else{roomLabel.textContent=`Комната: ${room.code} · ${room.players}/${room.limit}`;copyInvite.hidden=false;}start.hidden=true;ui.over.hidden=true;canvas.focus();};
 const connect = () => {
   if (socket?.readyState === WebSocket.OPEN || socket?.readyState === WebSocket.CONNECTING) return;
+  let serverFull=false;
   socket = new WebSocket(socketOrigin);
   socket.addEventListener('open',()=>socket.send(JSON.stringify(pendingRoom==='create'?{type:'create-room'}:{type:'join-room',code:pendingRoom==='public'?'':pendingRoom})));
-  socket.addEventListener('message', event => { const data = JSON.parse(event.data); if (data.type === 'welcome') clientId=data.id; if (data.type === 'room') showRoom(data); if(data.type==='room-error'){start.hidden=false;setStatus(data.message,true);} if (data.type === 'world' && clientId){game.applySnapshot(data, clientId);if(activeRoom!=='public'&&!roomBar.hidden)roomLabel.textContent=`Комната: ${activeRoom} · ${data.players.length}/${activeRoomLimit}`;} });
-  socket.addEventListener('close',event=>{clearInput();pendingRoom=activeRoom;start.hidden=false;roomBar.hidden=true;setStatus(event?.code===1013?'Сервер заполнен. Попробуй войти чуть позже.':'Соединение потеряно. Нажми «Играть» или войди в комнату снова.',true);});
+  socket.addEventListener('message', event => { const data = JSON.parse(event.data); if(data.type==='server-full'){serverFull=true;start.hidden=false;setStatus('Сервер заполнен. Попробуй войти чуть позже.',true);} if (data.type === 'welcome') clientId=data.id; if (data.type === 'room') showRoom(data); if(data.type==='room-error'){start.hidden=false;setStatus(data.message,true);} if (data.type === 'world' && clientId){game.applySnapshot(data, clientId);if(activeRoom!=='public'&&!roomBar.hidden)roomLabel.textContent=`Комната: ${activeRoom} · ${data.players.length}/${activeRoomLimit}`;} });
+  socket.addEventListener('close',event=>{clearInput();pendingRoom=activeRoom;start.hidden=false;roomBar.hidden=true;setStatus(serverFull||event?.code===1013?'Сервер заполнен. Попробуй войти чуть позже.':'Соединение потеряно. Нажми «Играть» или войди в комнату снова.',true);});
 };
 ui.resize(); addEventListener('resize', () => ui.resize());
 const input={x:0,y:0,keys:new Set(),boostTouch:false};

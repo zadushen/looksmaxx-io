@@ -52,7 +52,11 @@ function publish(){
 }
 wss.on('connection',socket=>{
   socket.on('error',()=>{});
-  if(wss.clients.size>CONNECTION_LIMIT){socket.close(1013,'Server full');return;}
+  if(wss.clients.size>CONNECTION_LIMIT){
+    socket.alive=true;send(socket,{type:'server-full'});
+    const closeTimer=setTimeout(()=>socket.close(1013,'Server full'),250);closeTimer.unref();
+    socket.on('close',()=>clearTimeout(closeTimer));return;
+  }
   socket.playerId=`p${nextId++}`;socket.roomCode=null;socket.alive=true;socket.windowStarted=Date.now();socket.messages=0;socket.roomActions=0;
   send(socket,{type:'welcome',id:socket.playerId});
   const joinTimeout=setTimeout(()=>{if(!socket.roomCode)socket.close(1008,'Join a room to play');},10000);joinTimeout.unref();socket.on('close',()=>clearTimeout(joinTimeout));

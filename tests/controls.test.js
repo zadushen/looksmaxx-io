@@ -63,5 +63,6 @@ test('private-room counters follow player snapshots and a full server gives a cl
  socket.emit('message',{type:'room',isPublic:false,code:'ABC123',players:1,limit:8});
  const arena=new Arena();arena.addPlayer('me');arena.addPlayer('guest');socket.emit('message',arena.snapshot());assert.match(h.elements.get('#room-label').textContent,/2\/8/);
  arena.removePlayer('guest');socket.emit('message',arena.snapshot());assert.match(h.elements.get('#room-label').textContent,/1\/8/);
- socket.emit('close',{code:1013});assert.match(h.elements.get('#room-status').textContent,/заполнен/);
+ socket.emit('message',{type:'server-full'});
+ socket.emit('close',{code:1006});assert.match(h.elements.get('#room-status').textContent,/заполнен/);
 });
