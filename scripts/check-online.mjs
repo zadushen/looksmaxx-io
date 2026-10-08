@@ -45,15 +45,15 @@ try{
   const peers=[],metrics=[];let code;
   for(let i=0;i<count;i++){
    const peer=await client();peers.push(peer);peer.send(loadPublic?{type:'join-room',code:''}:i===0?{type:'create-room'}:{type:'join-room',code});const joined=await peer.receive(m=>m.type==='room'||m.type==='room-error');assert.equal(joined.type,'room');code=joined.code;
-   const metric={packets:0,gaps:[],last:0,startBytes:peer.socket._socket.bytesRead};metrics.push(metric);
-   peer.socket.on('message',raw=>{if(JSON.parse(raw).type!=='world')return;const now=performance.now();if(metric.last)metric.gaps.push(now-metric.last);metric.last=now;metric.packets++;});
+   const metric={packets:0,gaps:[],last:0,firstWorldTime:null,lastWorldTime:0,startBytes:peer.socket._socket.bytesRead};metrics.push(metric);
+   peer.socket.on('message',raw=>{const world=JSON.parse(raw);if(world.type!=='world')return;metric.firstWorldTime??=world.time;metric.lastWorldTime=world.time;const now=performance.now();if(metric.last)metric.gaps.push(now-metric.last);metric.last=now;metric.packets++;});
    metric.timer=setInterval(()=>peer.socket.readyState===1&&peer.send({type:'input',name:`Audit ${i}`,x:Math.sin(performance.now()/1000+i),y:Math.cos(performance.now()/1000+i)}),50);
   }
   try{
    await sleep(duration*1000);
    const gaps=metrics.flatMap(m=>m.gaps).sort((a,b)=>a-b);assert.ok(gaps.length>0);
-   const result={arena:loadPublic?'public':'private',players:count,seconds:duration,minSnapshots:Math.min(...metrics.map(m=>m.packets)),p95GapMs:Math.round(gaps[Math.floor(gaps.length*.95)]),maxGapMs:Math.round(gaps.at(-1)),wireKBPerSecond:Math.round(metrics.reduce((sum,m,i)=>sum+peers[i].socket._socket.bytesRead-m.startBytes,0)/duration/1000),connectionsOpen:peers.every(p=>p.socket.readyState===1)};
-   result.passed=result.connectionsOpen&&result.minSnapshots>=duration*7&&result.p95GapMs<200;report.load.push(result);console.log(JSON.stringify(result));if(!result.passed)break;
+   const result={arena:loadPublic?'public':'private',players:count,seconds:duration,minSnapshots:Math.min(...metrics.map(m=>m.packets)),p95GapMs:Math.round(gaps[Math.floor(gaps.length*.95)]),maxGapMs:Math.round(gaps.at(-1)),wireKBPerSecond:Math.round(metrics.reduce((sum,m,i)=>sum+peers[i].socket._socket.bytesRead-m.startBytes,0)/duration/1000),simulationRate:+Math.min(...metrics.map(m=>(m.lastWorldTime-m.firstWorldTime)/duration)).toFixed(2),connectionsOpen:peers.every(p=>p.socket.readyState===1)};
+   result.passed=result.connectionsOpen&&result.minSnapshots>=duration*7&&result.p95GapMs<200&&result.simulationRate>=.9;report.load.push(result);console.log(JSON.stringify(result));if(!result.passed)break;
   }finally{metrics.forEach(m=>clearInterval(m.timer));peers.forEach(p=>p.socket.terminate());await sleep(500);}
  }
  const pub=await client();pub.send({type:'join-room',code:''});const publicRoom=await pub.receive(m=>m.type==='room');await pub.receive(m=>m.type==='world'&&m.players.some(p=>p.id===pub.id));report.checks.push({test:'Public arena',passed:true,configuredLimit:publicRoom.limit});

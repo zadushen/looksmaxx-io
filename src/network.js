@@ -9,7 +9,10 @@ export function wireWorld(world) {
 
 export function foodDelta(food, previous = new Map()) {
   const current = new Map(food.map(item => [item.id, item]));
-  const changes = food.filter(item => JSON.stringify(item) !== JSON.stringify(previous.get(item.id)));
+  const changes = food.filter(item => {
+    const old = previous.get(item.id);
+    return !old || item.x !== old.x || item.y !== old.y || item.type !== old.type || item.value !== old.value;
+  });
   const removed = [...previous.keys()].filter(id => !current.has(id));
   return { current, changes, removed };
 }
