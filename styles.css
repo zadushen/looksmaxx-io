@@ -37,3 +37,12 @@ button{border:1px solid var(--accent);border-radius:0;background:var(--accent);c
 @media(max-width:360px){.brand{font-size:18px;max-width:138px}.brand small{font-size:9px;letter-spacing:.12em}}
 
 @media(pointer:coarse){.touch-actions{display:grid;width:min(180px,calc(100vw - 168px));gap:6px}.help{display:none}.touch-actions button{min-height:44px}}
+
+/* Match the visible mobile viewport when browser toolbars change size. */
+html,body,.game-shell{width:var(--game-width,100vw);height:var(--game-height,100dvh);overflow:hidden}
+.hud,.start-screen,.game-over{right:auto;bottom:auto;width:var(--game-width,100vw);height:var(--game-height,100dvh)}
+@media(max-width:600px),(pointer:coarse){
+ .touch-actions{right:max(14px,env(safe-area-inset-right));bottom:calc(100% - var(--game-height,100dvh) + max(15px,env(safe-area-inset-bottom)));max-width:calc(var(--game-width,100vw) - 168px)}
+ .stats{bottom:max(13px,env(safe-area-inset-bottom))}
+ .menu-card{max-height:calc(var(--game-height,100dvh) - 28px)}
+}

@@ -5,8 +5,30 @@ const escapeHTML = value => String(value).replace(/[&<>"']/g, character => ({'&'
 const formatTier = tier => tier.replace(/^sub(\d+)$/i, 'SUB $1').toUpperCase();
 export class UI {
   constructor(game, canvas) { this.game = game; this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.mass = document.querySelector('#mass'); this.tier = document.querySelector('#tier'); this.leaders = document.querySelector('#leaders'); this.over = document.querySelector('#game-over'); this.finalMass = document.querySelector('#final-mass'); this.finalKills = document.querySelector('#final-kills'); this.finalPlace = document.querySelector('#final-place'); this.resultTitle = document.querySelector('#result-title'); this.resultCopy = document.querySelector('#result-copy'); this.respawnCopy = document.querySelector('#respawn-copy'); this.lastTier = null; this.shownResultRound = null; this.avatarAtlas = new Image(); this.avatarAtlas.src = './public/assets/avatar-evolution-v2.png'; this.makeupSprite = new Image(); this.makeupSprite.src = './public/assets/makeupcelka-avatar.png'; this.foidSprite = new Image(); this.foidSprite.src = './public/assets/foidka-avatar.png'; this.staceySprite = new Image(); this.staceySprite.src = './public/assets/stacey-avatar.png'; this.hammerSprite = new Image(); this.hammerSprite.src = './public/assets/hammer-avatar.png'; }
-  resize() { this.canvas.width = innerWidth * devicePixelRatio; this.canvas.height = innerHeight * devicePixelRatio; this.canvas.style.width = `${innerWidth}px`; this.canvas.style.height = `${innerHeight}px`; this.ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); }
-  render() { const { ctx, game } = this; const width = innerWidth, height = innerHeight, player = game.player,zoom=this.updateCamera(width,height),viewWidth=width/zoom,viewHeight=height/zoom,camera={x:this.cameraFocus.x-viewWidth/2,y:this.cameraFocus.y-viewHeight/2};this.zoom=zoom;this.pendingLabels=[];this.viewWidth=viewWidth;this.viewHeight=viewHeight;ctx.clearRect(0,0,width,height);ctx.save();ctx.scale(zoom,zoom);this.drawGrid(camera,viewWidth,viewHeight);this.drawZones(camera);game.food.forEach(item=>this.drawFood(item,camera));game.ejectedFood.forEach(item=>this.drawFood(item,camera));[...game.bots,...game.remotePlayers,...player.parts].filter(e=>e.alive).sort((a,b)=>a.mass-b.mass).forEach(e=>this.drawEntity(e,camera));const occupied=[];const localIds=new Set(player.parts.map(part=>part.id));this.pendingLabels.sort((a,b)=>Number(localIds.has(b.entity.id))-Number(localIds.has(a.entity.id))||b.r-a.r).forEach(label=>this.drawEntityLabel(label,occupied));this.pendingLabels=null;ctx.restore();this.drawMinimap();this.updateHUD(); }
+  resize() {
+    const viewport = globalThis.visualViewport;
+    const viewportWidth = viewport && viewport.scale === 1 ? viewport.width : innerWidth;
+    const viewportHeight = viewport && viewport.scale === 1 ? viewport.height : innerHeight;
+    this.viewportWidth = viewportWidth; this.viewportHeight = viewportHeight;
+    this.pixelRatio = devicePixelRatio || 1;
+    this.width = viewportWidth;
+    this.height = viewportHeight;
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.left = `${(viewportWidth - this.width) / 2}px`;
+    this.canvas.style.top = `${(viewportHeight - this.height) / 2}px`;
+    this.canvas.width = Math.round(this.width * this.pixelRatio);
+    this.canvas.height = Math.round(this.height * this.pixelRatio);
+    this.canvas.style.width = `${this.width}px`; this.canvas.style.height = `${this.height}px`;
+    this.ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+    document.documentElement?.style.setProperty('--game-width', `${viewportWidth}px`);
+    document.documentElement?.style.setProperty('--game-height', `${viewportHeight}px`);
+  }
+  render() {
+    const viewport = globalThis.visualViewport;
+    const widthNow = viewport && viewport.scale === 1 ? viewport.width : innerWidth;
+    const heightNow = viewport && viewport.scale === 1 ? viewport.height : innerHeight;
+    if (widthNow !== this.viewportWidth || heightNow !== this.viewportHeight || (devicePixelRatio || 1) !== this.pixelRatio) this.resize();
+    const { ctx, game } = this; const width = this.width || innerWidth, height = this.height || innerHeight, player = game.player,zoom=this.updateCamera(width,height),viewWidth=width/zoom,viewHeight=height/zoom,camera={x:this.cameraFocus.x-viewWidth/2,y:this.cameraFocus.y-viewHeight/2};this.zoom=zoom;this.pendingLabels=[];this.viewWidth=viewWidth;this.viewHeight=viewHeight;ctx.clearRect(0,0,width,height);ctx.save();ctx.scale(zoom,zoom);this.drawGrid(camera,viewWidth,viewHeight);this.drawZones(camera);game.food.forEach(item=>this.drawFood(item,camera));game.ejectedFood.forEach(item=>this.drawFood(item,camera));[...game.bots,...game.remotePlayers,...player.parts].filter(e=>e.alive).sort((a,b)=>a.mass-b.mass).forEach(e=>this.drawEntity(e,camera));const occupied=[];const localIds=new Set(player.parts.map(part=>part.id));this.pendingLabels.sort((a,b)=>Number(localIds.has(b.entity.id))-Number(localIds.has(a.entity.id))||b.r-a.r).forEach(label=>this.drawEntityLabel(label,occupied));this.pendingLabels=null;ctx.restore();this.drawMinimap();this.updateHUD(); }
   updateCamera(width,height,now=performance.now()) {
     const player=this.game.player,parts=player.parts.length?player.parts:[player];
     const left=Math.min(...parts.map(p=>p.x-Math.max(28,radius(p.mass)))),right=Math.max(...parts.map(p=>p.x+Math.max(28,radius(p.mass))));
@@ -81,7 +103,7 @@ export class UI {
     ctx.font=`800 ${tierSize}px system-ui`;ctx.fillStyle=color;ctx.fillText(formatTier(tier),x,rect.bottom-3/zoom);
     ctx.restore();
   }
-  drawMinimap() { const {ctx,game}=this,size=Math.min(innerHeight<=450?64:130,innerWidth*.28),x=innerWidth-size-22,y=innerHeight-size-((innerWidth<=600||innerHeight<=450||(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches))?116:90);ctx.fillStyle='#080a08';ctx.fillRect(x,y,size,size);ctx.strokeStyle='#f5f5e9';ctx.lineWidth=3;ctx.strokeRect(x,y,size,size);const dot=e=>{ctx.fillStyle=e.player?'#b6ff32':'#ffd23f';ctx.fillRect(x+e.x/WORLD_SIZE*size-2,y+e.y/WORLD_SIZE*size-2,4,4)};game.bots.forEach(dot);game.remotePlayers.forEach(dot);game.player.parts.forEach(dot); }
+  drawMinimap() { const {ctx,game}=this,size=Math.min((this.height||innerHeight)<=450?64:130,(this.width||innerWidth)*.28),x=(this.width||innerWidth)-size-22,y=(this.height||innerHeight)-size-(((this.width||innerWidth)<=600||(this.height||innerHeight)<=450||(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches))?116:90);ctx.fillStyle='#080a08';ctx.fillRect(x,y,size,size);ctx.strokeStyle='#f5f5e9';ctx.lineWidth=3;ctx.strokeRect(x,y,size,size);const dot=e=>{ctx.fillStyle=e.player?'#b6ff32':'#ffd23f';ctx.fillRect(x+e.x/WORLD_SIZE*size-2,y+e.y/WORLD_SIZE*size-2,4,4)};game.bots.forEach(dot);game.remotePlayers.forEach(dot);game.player.parts.forEach(dot); }
   updateHUD() { const { game }=this;const [,name,color]=game.getTier(game.player);const massHTML=`Масса <b>${Math.floor(game.player.mass)}</b>`;if(massHTML!==this.massHTML){this.mass.innerHTML=massHTML;this.massHTML=massHTML;}if(name!==this.lastTier){this.tier.textContent=formatTier(name);this.tier.style.color=color;}if(this.lastLeaderboard!==game.leaderboard){this.lastLeaderboard=game.leaderboard;const leadersHTML=game.leaders().map((e,i)=>`<li class="${e.player?'you':''}"><b>${i+1}</b> <span class="leader-name" title="${escapeHTML(e.name)}">${escapeHTML(e.name)}</span> <span class="leader-mass">${Math.floor(e.mass)}</span></li>`).join('');if(leadersHTML!==this.leadersHTML){this.leaders.innerHTML=leadersHTML;this.leadersHTML=leadersHTML;}}
     if(this.lastTier!==null&&this.lastTier!==name){this.tier.classList.remove('tier-up');void this.tier.offsetWidth;this.tier.classList.add('tier-up');}
     this.lastTier=name;

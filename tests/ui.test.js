@@ -143,3 +143,25 @@ test('unchanged HUD does not rebuild DOM on every animation frame',()=>{
  game.player.mass=15;game.leaderboard=[{id:'bot',name:'Bot',mass:51}];ui.updateHUD();assert.deepEqual(writes,{mass:2,leaders:2});
  }finally{cleanup();}
 });
+
+test('canvas and camera resize together when the mobile viewport changes between frames', () => {
+  const { h, game, ui, cleanup } = setup({width:390,height:844,dpr:3});
+  const previous = globalThis.visualViewport;
+  try {
+    game.player.parts=[{name:'You',x:2500,y:2500,mass:1,alive:true,player:true}];
+    globalThis.visualViewport={width:390,height:660,scale:1};
+    ui.render();
+    assert.equal(ui.height,660);
+    assert.equal(h.elements.get('#game').height,1980);
+    assert.equal(h.elements.get('#game').style.height,'660px');
+    globalThis.visualViewport={width:844,height:390,scale:1};
+    ui.render();
+    assert.equal(ui.width,844);
+    assert.equal(ui.height,390);
+    assert.equal(h.elements.get('#game').width,2532);
+    assert.equal(h.depth,0);
+  } finally {
+    if(previous===undefined)delete globalThis.visualViewport;else globalThis.visualViewport=previous;
+    cleanup();
+  }
+});

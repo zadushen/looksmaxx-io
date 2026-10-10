@@ -24,7 +24,7 @@ const connect = () => {
 ui.resize(); addEventListener('resize', () => ui.resize());
 const input={x:0,y:0,keys:new Set(),boostTouch:false};
 let touchOrigin=null;let lastInputSent=-Infinity;
-const pointDirection=e=>{if(touchOrigin){input.x=e.clientX-touchOrigin.x;input.y=e.clientY-touchOrigin.y;}else{input.x=e.clientX-innerWidth/2;input.y=e.clientY-innerHeight/2;}};
+const pointDirection=e=>{if(touchOrigin){input.x=e.clientX-touchOrigin.x;input.y=e.clientY-touchOrigin.y;}else{const bounds=canvas.getBoundingClientRect?.()||{left:0,top:0,width:ui.width||innerWidth,height:ui.height||innerHeight};input.x=e.clientX-bounds.left-bounds.width/2;input.y=e.clientY-bounds.top-bounds.height/2;}};
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touchOrigin={x:e.clientX,y:e.clientY};canvas.setPointerCapture?.(e.pointerId);}pointDirection(e);});
 canvas.addEventListener('pointermove',pointDirection);
 const releasePointer=e=>{if(e.pointerType==='touch'){touchOrigin=null;input.x=0;input.y=0;}};
