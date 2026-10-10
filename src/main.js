@@ -45,7 +45,7 @@ roomInput.addEventListener('input',()=>roomInput.value=roomInput.value.toUpperCa
 document.querySelector('#restart').addEventListener('click', () => { ui.over.hidden = true; });
 document.querySelector('#split-touch').addEventListener('click',()=>{socket?.readyState===WebSocket.OPEN&&socket.send(JSON.stringify({type:'split'}));tone(520,.12,.055);});
 const boostTouch=document.querySelector('#boost-touch');
-['pointerdown','pointerup','pointercancel','pointerleave'].forEach(type=>boostTouch.addEventListener(type,e=>{e.preventDefault();input.boostTouch=type==='pointerdown';}));
+['pointerdown','pointerup','pointercancel','pointerleave','lostpointercapture'].forEach(type=>boostTouch.addEventListener(type,e=>{e.preventDefault();input.boostTouch=type==='pointerdown';}));
 copyInvite.addEventListener('click',async()=>{const code=activeRoom;const invite=`${serverOrigin}/?room=${encodeURIComponent(code)}`;try{await navigator.clipboard.writeText(invite);copyInvite.textContent='Скопировано ✓';copyInvite.classList.add('copied');setTimeout(()=>{copyInvite.textContent='Копировать приглашение';copyInvite.classList.remove('copied');},1600);}catch{setStatus(`Код комнаты: ${code}`,false);}});
 const invitationCode=new URLSearchParams(location.search).get('room');if(invitationCode){roomInput.value=invitationCode.toUpperCase().slice(0,6);setStatus(`Приглашение в комнату ${roomInput.value}`);}
 function direction(){let x=0,y=0,k=input.keys;if(k.has('ArrowUp')||k.has('KeyW'))y--;if(k.has('ArrowDown')||k.has('KeyS'))y++;if(k.has('ArrowLeft')||k.has('KeyA'))x--;if(k.has('ArrowRight')||k.has('KeyD'))x++;return x||y?{x,y}:{x:input.x,y:input.y};}
