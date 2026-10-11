@@ -66,3 +66,18 @@ test('private-room counters follow player snapshots and a full server gives a cl
  socket.emit('message',{type:'server-full'});
  socket.emit('close',{code:1006});assert.match(h.elements.get('#room-status').textContent,/заполнен/);
 });
+
+
+test('touch split sends immediately on press, ignores the later pointer click and blocks selection',()=>{
+ const h=browserHarness(),socket=h.start(),split=h.elements.get('#split-touch'),boost=h.elements.get('#boost-touch');
+ const before=socket.sent.filter(m=>m.type==='split').length;
+ assert.ok(split.dispatch('pointerdown',{pointerType:'touch',pointerId:1,button:0}).defaultPrevented);
+ assert.equal(socket.sent.filter(m=>m.type==='split').length,before+1);
+ split.dispatch('click',{detail:1});
+ assert.equal(socket.sent.filter(m=>m.type==='split').length,before+1);
+ split.dispatch('click',{detail:0});
+ assert.equal(socket.sent.filter(m=>m.type==='split').length,before+2);
+ for(const b of [split,boost])for(const event of ['touchstart','selectstart','contextmenu'])assert.ok(b.dispatch(event).defaultPrevented);
+ boost.dispatch('pointerdown',{pointerId:2});h.frame();assert.equal(latestInput(socket).boost,true);
+ boost.dispatch('lostpointercapture');h.frame();assert.equal(latestInput(socket).boost,false);
+});
