@@ -33,7 +33,12 @@ test('real HTTP and WebSocket server supports assets, shared rooms and isolated 
   await t.test('two players in a private room receive the same entities and authoritative movement',async()=>{
     a.send({type:'create-room'});const room=await a.receive(m=>m.type==='room');code=room.code;assert.match(code,/^[A-Z0-9]{6}$/);
     b.send({type:'join-room',code});await b.receive(m=>m.type==='room');
-    const [first,second]=await Promise.all([a.receive(m=>m.type==='world'&&m.players.length===2),b.receive(m=>m.type==='world'&&m.players.length===2)]);
+    let [first,second]=await Promise.all([a.receive(m=>m.type==='world'&&m.players.length===2),b.receive(m=>m.type==='world'&&m.players.length===2)]);
+    // A join may cross a publish boundary; compare the same authoritative frame.
+    while(first.time!==second.time){
+      if(first.time<second.time)first=await a.receive(m=>m.type==='world'&&m.time>=second.time);
+      else second=await b.receive(m=>m.type==='world'&&m.time>=first.time);
+    }
     assert.deepEqual(first.players.map(p=>p.id),second.players.map(p=>p.id));assert.deepEqual(first.food.map(f=>f.id),second.food.map(f=>f.id));
     const before=first.players.find(p=>p.id===a.id);a.send({type:'input',name:'Test A',x:1,y:0,mass:999999});
     const moved=await b.receive(m=>m.type==='world'&&m.players.some(p=>p.id===a.id&&p.name==='Test A'&&p.x>before.x));
