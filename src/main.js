@@ -24,16 +24,37 @@ const connect = () => {
 ui.resize(); addEventListener('resize', () => ui.resize());
 const input={x:0,y:0,keys:new Set(),boostTouch:false};
 let touchOrigin=null;let lastInputSent=-Infinity;
-const pointDirection=e=>{if(touchOrigin){input.x=e.clientX-touchOrigin.x;input.y=e.clientY-touchOrigin.y;}else{const bounds=canvas.getBoundingClientRect?.()||{left:0,top:0,width:ui.width||innerWidth,height:ui.height||innerHeight};input.x=e.clientX-bounds.left-bounds.width/2;input.y=e.clientY-bounds.top-bounds.height/2;}};
-canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touchOrigin={x:e.clientX,y:e.clientY};canvas.setPointerCapture?.(e.pointerId);}pointDirection(e);});
+const joystick=document.querySelector('#touch-joystick'),joystickKnob=document.querySelector('#joystick-knob');
+const pointDirection=e=>{
+  if(e.pointerType==='touch'){
+    if(!touchOrigin||e.pointerId!==touchOrigin.id)return;
+    e.preventDefault();
+    const dx=e.clientX-touchOrigin.x,dy=e.clientY-touchOrigin.y,length=Math.hypot(dx,dy),scale=length>48?48/length:1;
+    input.x=length<=8?0:dx*scale;input.y=length<=8?0:dy*scale;
+    joystickKnob.style.transform=`translate(${dx*scale}px,${dy*scale}px)`;
+  }else if(!touchOrigin){
+    const bounds=canvas.getBoundingClientRect?.()||{left:0,top:0,width:ui.width||innerWidth,height:ui.height||innerHeight};input.x=e.clientX-bounds.left-bounds.width/2;input.y=e.clientY-bounds.top-bounds.height/2;
+  }
+};
+canvas.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='touch'){
+    const bounds=canvas.getBoundingClientRect?.()||{left:0,width:ui.width||innerWidth};
+    if(touchOrigin||!start.hidden||document.hidden||(typeof paused!=='undefined'&&paused)||e.clientX>bounds.left+bounds.width/2)return;
+    e.preventDefault();touchOrigin={x:e.clientX,y:e.clientY,id:e.pointerId};
+    joystick.style.left=`${e.clientX}px`;joystick.style.top=`${e.clientY}px`;joystick.hidden=false;
+    canvas.setPointerCapture?.(e.pointerId);
+  }
+  pointDirection(e);
+});
 canvas.addEventListener('pointermove',pointDirection);
-const releasePointer=e=>{if(e.pointerType==='touch'){touchOrigin=null;input.x=0;input.y=0;}};
+const stopJoystick=()=>{touchOrigin=null;input.x=0;input.y=0;joystick.hidden=true;joystickKnob.style.transform='translate(0px,0px)';};
+const releasePointer=e=>{if(touchOrigin&&e.pointerId===touchOrigin.id)stopJoystick();};
 canvas.addEventListener('pointerup',releasePointer);
 canvas.addEventListener('pointercancel',releasePointer);
 canvas.addEventListener('lostpointercapture',releasePointer);
 addEventListener('keydown', e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName) || e.target?.isContentEditable) return; if (!start.hidden) return; if (/^(Key[WASD]|Arrow(Up|Down|Left|Right)|Space|Shift(Left|Right))$/.test(e.code)) e.preventDefault(); if (e.code === 'Space' && !e.repeat) { socket?.readyState===WebSocket.OPEN&&socket.send(JSON.stringify({type:'split'})); tone(520,.12,.055); } input.keys.add(e.code); });
 addEventListener('keyup', e => input.keys.delete(e.code));
-const clearInput=()=>{input.keys.clear();input.x=0;input.y=0;input.boostTouch=false;touchOrigin=null;};
+const clearInput=()=>{input.keys.clear();input.x=0;input.y=0;input.boostTouch=false;stopJoystick();};
 addEventListener('blur',clearInput);
 document.addEventListener('visibilitychange',()=>{diagnostics?.reset();if(document.hidden)clearInput();});
 const begin = room => { audio ??= new AudioContext(); pendingRoom=room;setStatus(room==='create'?'Создаём комнату…':'Подключаемся…');connect();if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(room==='create'?{type:'create-room'}:{type:'join-room',code:room==='public'?'':room}));tone(330,.1,.05); };

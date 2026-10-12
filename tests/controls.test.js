@@ -28,8 +28,8 @@ test('mouse and touch directions work; canceled touch and lost focus stop moveme
   const h=browserHarness(),socket=h.start(),canvas=h.elements.get('#game');
   canvas.dispatch('pointermove',{clientX:900,clientY:384,pointerType:'mouse'}); h.frame(); assert.ok(latestInput(socket).x>0);
   canvas.dispatch('pointerdown',{clientX:100,clientY:100,pointerType:'touch',pointerId:1});
-  canvas.dispatch('pointermove',{clientX:100,clientY:150,pointerType:'touch'}); h.frame(); assert.equal(latestInput(socket).y,50);
-  canvas.dispatch('pointercancel',{pointerType:'touch'}); h.frame(); assert.equal(latestInput(socket).y,0);
+  canvas.dispatch('pointermove',{clientX:100,clientY:140,pointerType:'touch',pointerId:1}); h.frame(); assert.equal(latestInput(socket).y,40);
+  canvas.dispatch('pointercancel',{pointerType:'touch',pointerId:1}); h.frame(); assert.equal(latestInput(socket).y,0);
   h.windowEvent('keydown',{code:'KeyW'}); h.windowEvent('keydown',{code:'ShiftLeft'}); h.windowEvent('blur'); h.frame();
   assert.equal(latestInput(socket).y,0); assert.equal(latestInput(socket).boost,false);
 });
@@ -80,4 +80,16 @@ test('touch split sends immediately on press, ignores the later pointer click an
  for(const b of [split,boost])for(const event of ['touchstart','selectstart','contextmenu'])assert.ok(b.dispatch(event).defaultPrevented);
  boost.dispatch('pointerdown',{pointerId:2});h.frame();assert.equal(latestInput(socket).boost,true);
  boost.dispatch('lostpointercapture');h.frame();assert.equal(latestInput(socket).boost,false);
+});
+
+test('floating joystick has a dead zone, owns one finger and coexists with action buttons',()=>{
+ const h=browserHarness({width:390,height:700}),socket=h.start(),canvas=h.elements.get('#game'),stick=h.elements.get('#touch-joystick');
+ canvas.dispatch('pointerdown',{clientX:300,clientY:400,pointerType:'touch',pointerId:9});assert.equal(stick.hidden,true);
+ canvas.dispatch('pointerdown',{clientX:100,clientY:400,pointerType:'touch',pointerId:1});assert.equal(stick.hidden,false);
+ canvas.dispatch('pointermove',{clientX:104,clientY:404,pointerType:'touch',pointerId:1});h.frame();assert.equal(latestInput(socket).x,0);
+ canvas.dispatch('pointerdown',{clientX:60,clientY:300,pointerType:'touch',pointerId:2});
+ canvas.dispatch('pointermove',{clientX:200,clientY:400,pointerType:'touch',pointerId:1});h.frame();assert.equal(latestInput(socket).x,48);
+ h.elements.get('#boost-touch').dispatch('pointerdown',{pointerId:3});h.elements.get('#split-touch').dispatch('pointerdown',{pointerId:4});h.frame();assert.equal(latestInput(socket).boost,true);assert.equal(latestInput(socket).x,48);assert.equal(socket.sent.filter(m=>m.type==='split').length,1);
+ canvas.dispatch('pointerup',{pointerType:'touch',pointerId:2});h.frame();assert.equal(latestInput(socket).x,48);
+ canvas.dispatch('lostpointercapture',{pointerId:1});h.frame();assert.equal(latestInput(socket).x,0);assert.equal(stick.hidden,true);
 });

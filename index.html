@@ -26,7 +26,7 @@
         <div class="menu-card">
           <p class="eyebrow">THE GLOW-UP ARENA</p>
           <h1>LOOKSMAXX<span>.IO</span></h1>
-          <p class="menu-copy">Собирай находки, расти по тирам и поглощай тех, кто заметно меньше.</p><p class="controls-copy"><b>Мышь / WASD / стрелки</b> — движение · <b>Space</b> — разделиться · <b>Shift</b> — ускориться<br /><span>На телефоне тяни палец по арене: действия появятся в игре.</span></p>
+          <p class="menu-copy">Собирай находки, расти по тирам и поглощай тех, кто заметно меньше.</p><p class="controls-copy"><b>Мышь / WASD / стрелки</b> — движение · <b>Space</b> — разделиться · <b>Shift</b> — ускориться<br /><span>На телефоне: джойстик слева, разделение и ускорение справа.</span></p>
           <div class="nickname-field"><label for="nickname">Твой ник</label><input id="nickname" maxlength="14" placeholder="Главный герой" autocomplete="nickname" /></div>
           <button id="play" class="play-primary" type="button">Играть <b>→</b><small>общий мир · бесконечная арена</small></button>
           <details class="setup-panel room-panel"><summary>Комната с друзьями <span>создать или войти</span></summary><div class="setup-body room-actions"><button id="create-room" class="secondary" type="button">Создать комнату</button><div class="room-join"><input id="room-code-input" maxlength="6" placeholder="Код комнаты" autocomplete="off" /><button id="join-room" class="secondary" type="button">Войти по коду</button></div><p id="room-status" class="room-status" aria-live="polite">Или играй в общем мире.</p></div></details>
@@ -34,6 +34,7 @@
         </div>
       </section>
       <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+      <div id="touch-joystick" class="touch-joystick" hidden aria-hidden="true"><div id="joystick-knob" class="joystick-knob"></div></div>
       <div class="touch-actions" aria-label="Действия для сенсорного экрана"><button id="split-touch" type="button">Разделиться</button><button id="boost-touch" type="button">Ускорение</button></div>
       <section id="game-over" class="game-over" hidden>
         <div class="menu-card defeat-card">

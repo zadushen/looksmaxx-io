@@ -57,3 +57,7 @@ button{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch
 input,textarea{touch-action:manipulation;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;font-size:16px!important}
 
 .touch-actions,.touch-actions *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;touch-action:none!important}
+
+.touch-joystick{position:fixed;width:128px;height:128px;margin:-64px 0 0 -64px;border:2px solid #a7ff4566;border-radius:50%;background:#10192366;pointer-events:none;z-index:8;box-shadow:inset 0 0 25px #0003}
+.touch-joystick[hidden]{display:none}
+.joystick-knob{position:absolute;left:43px;top:43px;width:38px;height:38px;border-radius:50%;border:2px solid #b2ff55;background:#a7ff4577;box-shadow:0 2px 12px #0005}
